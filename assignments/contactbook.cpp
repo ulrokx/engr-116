@@ -24,7 +24,7 @@ public:
 AddressBook::AddressBook()
 {
     filename = "addressbook.txt";
-}
+
 
 void AddressBook::add()
 {
@@ -103,13 +103,13 @@ void AddressBook::display()
     ifs.close();
 }
 
-void AddressBook::Sdelete()
+void AddressBook::Sdelete() // delete entry from phone book
 {
     int lineIndex = 0;
     string query, line;
-    stringstream foundResults;
+    stringstream foundResults; // to store results found in
     int found = 0;
-    vector<int> toDelete;
+    vector<int> toDelete; // array of line numbers to start deletion from
     cout << "Enter name you would like to find delete from your address book:" << endl;
     cin >> query;
     ifs.open(filename);
