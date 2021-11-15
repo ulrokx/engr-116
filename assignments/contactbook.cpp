@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 class AddressBook
@@ -17,6 +18,7 @@ public:
     void add();
     void search();
     void display();
+    void Sdelete();
 };
 
 AddressBook::AddressBook()
@@ -39,8 +41,7 @@ void AddressBook::add()
     ofs << first << endl
         << last << endl
         << phone << endl
-        << email << endl
-        << address << endl;
+        << email << endl;
     ofs.close();
 }
 
@@ -55,7 +56,7 @@ void AddressBook::search()
     ifs.open(filename);
     while (getline(ifs, line))
     {
-        if (line == query)
+        if (line.find(query) != string::npos)
         {
             numFound++;
             foundResults << "First Name: " << line << endl;
@@ -83,17 +84,93 @@ void AddressBook::display()
     cout << "Printing entire address book:" << endl;
     string first, last, phone, email;
     ifs.open(filename);
+    int count = 0;
     while (getline(ifs, first))
     {
+        count++;
         cout << "First Name: " << first << endl;
         getline(ifs, last);
         cout << "Last Name: " << last << endl;
         getline(ifs, phone);
         cout << "Phone Number: " << phone << endl;
         getline(ifs, email);
-        cout << "Email: " << email << endl;
+        cout << "Email: " << email << endl << endl;
+
+    }
+    if(count ==0) {
+        cout << "Book is empty!" << endl;
     }
     ifs.close();
+}
+
+void AddressBook::Sdelete()
+{
+    int lineIndex = 0;
+    string query, line;
+    stringstream foundResults;
+    int found = 0;
+    vector<int> toDelete;
+    cout << "Enter name you would like to find delete from your address book:" << endl;
+    cin >> query;
+    ifs.open(filename);
+    while (getline(ifs, line))
+    {
+        lineIndex++;
+        if (line.find(query) != string::npos)
+        {
+            found++;
+            toDelete.push_back(lineIndex);
+            foundResults << "Result " << found << endl;
+            foundResults << "First Name: " << line << endl;
+            getline(ifs, line);
+            foundResults << "Last Name: " << line << endl;
+            getline(ifs, line);
+            foundResults << "Phone Number: " << line << endl;
+            getline(ifs, line);
+            foundResults << "Email: " << line << endl << endl;
+        }
+    }
+    cout << "Found " << found << " results." << endl;
+    if(found > 0) {
+        cout << foundResults.str();
+    }
+    else {
+        return;
+    }
+    string boole;
+    while(!(boole == "y" || boole == "n")) {
+    cout << "Would you like to delete a result? (y/n)" << endl;
+    cin >> boole;
+    }
+    if(boole == "n") {
+        ifs.close();
+        return;
+    }
+    int response = -1;
+    while(response < 1 || response > found) {
+    cout << "Which result would you like to delete?" << endl;
+        cin >> response;
+    }
+    response--;
+    ifs.clear();
+    ifs.seekg(0);
+    ofs.open("tempaddbook.txt");
+    int lineOut = 1;
+    while(getline(ifs,line)) {
+        if(lineOut == toDelete[response]) {
+            getline(ifs,line);
+            getline(ifs,line);
+            getline(ifs,line);
+            cout << "Deleted entry." << endl;
+            continue;
+        }
+        lineOut++;
+        ofs << line << endl;
+    }
+    ifs.close();
+    ofs.close();
+    remove(filename.c_str());
+    rename("tempaddbook.txt", filename.c_str());
 }
 
 int main()
@@ -116,9 +193,9 @@ int main()
         case 2:
             book.display();
             break;
-        // case 3:
-        // book.del();
-        // break;
+        case 3:
+        book.Sdelete();
+        break;
         case 4:
             quit = true;
             break;
@@ -126,4 +203,5 @@ int main()
             cout << "Enter a number 0 - 4 :)" << endl;
         }
     }
+    cout << "Thanks for using my addressbook!" << endl;
 }
